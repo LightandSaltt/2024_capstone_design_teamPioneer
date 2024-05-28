@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "306707216712",
+    "firebase_url": "https://hansik-16c5b-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "hansik-16c5b",
     "storage_bucket": "hansik-16c5b.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "306707216712-gsareugu6ocasknlri6rq0ntmdcp0k9q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hansik_app",
+            "certificate_hash": "9f47181a79a08bb600da99740365f41226769e49"
+          }
+        },
         {
           "client_id": "306707216712-m8qm2k599bvgbfuo1rlu3r7vvto6uamj.apps.googleusercontent.com",
           "client_type": 3
