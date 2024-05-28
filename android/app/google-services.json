@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "306707216712",
+    "project_id": "hansik-16c5b",
+    "storage_bucket": "hansik-16c5b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:306707216712:android:7adf64d72d06ede418db7d",
+        "android_client_info": {
+          "package_name": "com.example.hansik_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "306707216712-m8qm2k599bvgbfuo1rlu3r7vvto6uamj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA62_X6U3Q_v9HgTrucXGWdBIHNKFbQhiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "306707216712-m8qm2k599bvgbfuo1rlu3r7vvto6uamj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "306707216712-serbg3jlfqaj3jeq1klgv0g23rn6gccg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.hansikApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
