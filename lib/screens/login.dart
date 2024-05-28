@@ -2,12 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_button/sign_in_button.dart';
-
-import 'package:firebase_database/firebase_database.dart'; // Firebase Realtime Database 추가
-import 'stu_information.dart'; // 사용자 정보 입력 페이지 임포트
-import 'hansik_main_page.dart'; // 메인 페이지 임포트
-
-import 'mypage.dart';
+import 'hansik_main_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,34 +11,26 @@ class LoginScreen extends StatefulWidget {
   _LoginScreenState createState() => _LoginScreenState();
 }
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
-final GoogleSignIn _googleSignIn = GoogleSignIn();
-
 class _LoginScreenState extends State<LoginScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   User? _user;
 
   @override
   void initState() {
     super.initState();
-    _auth.authStateChanges().listen((user) async {
-      if (user != null) {
-        // 사용자가 로그인되어 있으면 Firebase Realtime Database에서 정보 확인
-        DatabaseReference ref = FirebaseDatabase.instance.ref();
-        final snapshot = await ref.child('users/${user.uid}').get();
-        if (snapshot.exists) {
-          // 정보가 존재하면 메인 페이지로 이동
+    _auth.authStateChanges().listen((event) {
+      setState(() {
+        _user = event;
+
+        // 사용자 정보 변경 감지 시 로그인 여부 확인 후 페이지 이동
+        if (_user != null) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => HansikMainPage()),
           );
-        } else {
-          // 정보가 없으면 사용자 정보 입력 페이지로 이동
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => StuInformation()),
-          );
         }
-      }
+      });
     });
   }
 

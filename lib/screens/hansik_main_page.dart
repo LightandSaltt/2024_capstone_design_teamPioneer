@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth import 추가
+import 'login.dart'; // LoginScreen import 추가
 import 'menu_screen.dart';
 
 class HansikMainPage extends StatelessWidget {
@@ -68,7 +69,17 @@ class HansikMainPage extends StatelessWidget {
                   // 알림 로직 처리
                 },
               ),
-            )
+            ),
+            IconButton( // 로그아웃 버튼 추가
+              icon: const Icon(Icons.logout, color: Colors.black),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut(); // Firebase 로그아웃
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()), // 로그인 페이지로 이동
+                );
+              },
+            ),
           ],
         ),
         body: Container(
