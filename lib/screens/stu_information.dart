@@ -35,7 +35,7 @@ class _StuInformationState extends State<StuInformation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('학생 정보'),
+        title: Text('학생 정보 입력'),
       ),
       body: SingleChildScrollView(
         child: Form(

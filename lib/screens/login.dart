@@ -97,7 +97,7 @@ class TextHeader extends StatelessWidget {
               ),
             ),
             SizedBox(width: 10),
-            Image.asset('assets/hansik_logo.png', height: 28),
+            Image.asset('assets/images/hansik_logo.png', height: 28),
           ],
         ),
         SizedBox(height: 120),
@@ -125,6 +125,6 @@ class TextHeader extends StatelessWidget {
 class BottomImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Image.asset('assets/hannam_logo.png', height: 80);
+    return Image.asset('assets/images/hannam_logo.png', height: 80);
   }
 }

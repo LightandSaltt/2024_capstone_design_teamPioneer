@@ -45,6 +45,12 @@ class _MenuScreenState extends State<MenuScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text('메뉴'),
+        leading: IconButton( // 뒤로가기 버튼 추가
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // 이전 페이지로 이동
+          },
+        ),
       ),
       body: Container(
         padding: const EdgeInsets.only(top: 15, left: 20, bottom: 30, right: 20),

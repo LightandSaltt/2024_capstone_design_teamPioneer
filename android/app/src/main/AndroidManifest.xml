@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
     <application
         android:label="hansik_app"
         android:name="${applicationName}"
@@ -29,6 +31,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!--네이버 맵-->
+        <meta-data
+            android:name="com.naver.maps.map.t2jybcid3d"
+            android:value="t2jybcid3d" />
+
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and
