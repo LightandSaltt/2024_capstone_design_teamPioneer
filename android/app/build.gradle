@@ -52,6 +52,8 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        multiDexEnabled true //추가
     }
 
     buildTypes {
@@ -69,4 +71,8 @@ flutter {
 
 apply plugin: 'com.google.gms.google-services'
 
-dependencies {}
+dependencies{
+    implementation("com.google.firebase:firebase-database-ktx")
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+}

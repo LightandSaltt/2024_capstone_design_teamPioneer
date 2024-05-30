@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:306707216712:android:7adf64d72d06ede418db7d",
         "android_client_info": {
-          "package_name": "com.hannam.hansik_app"
+          "package_name": "com.example.hansik_app"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "306707216712-gsareugu6ocasknlri6rq0ntmdcp0k9q.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.hannam.hansik_app",
+            "package_name": "com.example.hansik_app",
             "certificate_hash": "9f47181a79a08bb600da99740365f41226769e49"
           }
         },
@@ -43,7 +43,7 @@
               "client_id": "306707216712-serbg3jlfqaj3jeq1klgv0g23rn6gccg.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.hannam.hansikApp"
+                "bundle_id": "com.example.hansikApp"
               }
             }
           ]

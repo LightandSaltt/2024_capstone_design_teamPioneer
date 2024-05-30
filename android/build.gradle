@@ -16,7 +16,3 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
-
-dependencies{
-    implementation("com.google.firebase:firebase-database-ktx")
-}

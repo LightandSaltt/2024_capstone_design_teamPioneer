@@ -277,10 +277,10 @@ class _HansikMainPageState extends State<HansikMainPage> {
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: _pageInfos.map((pageInfo) => customButton(pageInfo, context)).toList(), // _pageInfos 리스트 사용
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: _pageInfos.map((pageInfo) => customButton(pageInfo, context)).toList(), // _pageInfos 리스트 사용
+                ),
               ),
               const SizedBox(height: 30),
               Expanded(
