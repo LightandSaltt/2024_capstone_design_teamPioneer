@@ -30,6 +30,18 @@
 @import google_sign_in_ios;
 #endif
 
+#if __has_include(<iamport_flutter/IamportFlutterPlugin.h>)
+#import <iamport_flutter/IamportFlutterPlugin.h>
+#else
+@import iamport_flutter;
+#endif
+
+#if __has_include(<iamport_webview_flutter/FLTIamportWebViewFlutterPlugin.h>)
+#import <iamport_webview_flutter/FLTIamportWebViewFlutterPlugin.h>
+#else
+@import iamport_webview_flutter;
+#endif
+
 #if __has_include(<image_picker_ios/FLTImagePickerPlugin.h>)
 #import <image_picker_ios/FLTImagePickerPlugin.h>
 #else
@@ -40,6 +52,12 @@
 #import <naver_map_plugin/NaverMapPlugin.h>
 #else
 @import naver_map_plugin;
+#endif
+
+#if __has_include(<uni_links/UniLinksPlugin.h>)
+#import <uni_links/UniLinksPlugin.h>
+#else
+@import uni_links;
 #endif
 
 #if __has_include(<url_launcher_ios/URLLauncherPlugin.h>)
@@ -55,8 +73,11 @@
   [FLTFirebaseCorePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCorePlugin"]];
   [FLTFirebaseDatabasePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseDatabasePlugin"]];
   [FLTGoogleSignInPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleSignInPlugin"]];
+  [IamportFlutterPlugin registerWithRegistrar:[registry registrarForPlugin:@"IamportFlutterPlugin"]];
+  [FLTIamportWebViewFlutterPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTIamportWebViewFlutterPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [NaverMapPlugin registerWithRegistrar:[registry registrarForPlugin:@"NaverMapPlugin"]];
+  [UniLinksPlugin registerWithRegistrar:[registry registrarForPlugin:@"UniLinksPlugin"]];
   [URLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"URLLauncherPlugin"]];
 }
 
