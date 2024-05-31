@@ -1,29 +1,96 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
+import 'dart:async';
+import 'package:url_launcher/url_launcher.dart';
+import 'buy_ticket.dart';
 import 'menu_screen.dart';
+import 'hnu_map.dart';
+import 'login.dart';
+import 'stu_information.dart';
 
-class HansikMainPage extends StatelessWidget {
+class HansikMainPage extends StatefulWidget {
+  @override
+  _HansikMainPageState createState() => _HansikMainPageState();
+}
+
+class PageInfo {
+  final String iconPath;
+  final String label;
+  final Widget? page;
+  final String? url;
+
+  PageInfo(this.iconPath, this.label, {this.page, this.url});
+}
+
+final List<PageInfo> _pageInfos = [
+  PageInfo('assets/images/ic_buy.svg', '식권구매', page: BuyTicket()),
+  PageInfo('assets/images/marker_icon.svg', '학교맵', page: HnuMap()),
+  PageInfo('assets/images/ic_menu.svg', '메뉴', page: MenuScreen()),
+  PageInfo('assets/images/ic_homepage.svg', '홈페이지', url: 'https://www.hannam.ac.kr/kor/main/'),
+];
+
+class _HansikMainPageState extends State<HansikMainPage> {
+  String? name;
+  String? studentId;
+  String? major;
+  String? grade;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final databaseRef = FirebaseDatabase.instance.ref();
+        final snapshot = await databaseRef.child('users/${user.uid}').get();
+
+        if (snapshot.exists) {
+          final userData = snapshot.value as Map<dynamic, dynamic>;
+          setState(() {
+            name = userData['name'] as String?;
+            studentId = userData['studentId'] as String?;
+            major = userData['major'] as String?;
+            grade = userData['grade'] as String?;
+          });
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => StuInformation()),
+          );
+        }
+      }
+    } catch (e) {
+      print("Error loading user data: $e");
+    }
+  }
 
   List<String> _menuItems = [
-    '된장국',
-    '현미밥',
-    '된장찌개',
-    '제육볶음',
-    '볶음김치',
-    '플레인 요구르트',
+    '된장국', '현미밥', '된장찌개', '제육볶음', '볶음김치', '플레인 요구르트',
   ];
 
-  Widget customButton(String iconPath, String label, BuildContext context) {
+  Widget customButton(PageInfo pageInfo, BuildContext context) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      onTap: () {
-        if (label == '메뉴') {
+      onTap: () async {
+        if (pageInfo.page != null) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => MenuScreen()),
+            MaterialPageRoute(builder: (context) => pageInfo.page!),
           );
+        } else if (pageInfo.url != null) {
+          Uri url = Uri.parse(pageInfo.url!);
+          if (await canLaunchUrl(url)) {
+            await launchUrl(url);
+          } else {
+            throw 'Could not launch $url';
+          }
         }
       },
       child: Container(
@@ -39,14 +106,14 @@ class HansikMainPage extends StatelessWidget {
               ),
               child: Center(
                 child: SvgPicture.asset(
-                  iconPath,
+                  pageInfo.iconPath,
                   width: 30,
                   height: 30,
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), // 텍스트 스타일
+            Text(pageInfo.label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -63,12 +130,22 @@ class HansikMainPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: IconButton(
-                icon: SvgPicture.asset('assets/ic_alarm.svg'),
+                icon: SvgPicture.asset('assets/images/ic_alarm.svg'),
                 onPressed: () {
                   // 알림 로직 처리
                 },
               ),
-            )
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.black),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              },
+            ),
           ],
         ),
         body: Container(
@@ -100,67 +177,68 @@ class HansikMainPage extends StatelessWidget {
                 ),
               ),
               Padding(
-                  padding: const EdgeInsets.only(left: 23, right: 23),
-                  child: Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF6F9F4),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
+                padding: const EdgeInsets.only(left: 23, right: 23),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF6F9F4),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  width: 84,
-                                  height: 84,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFFFF),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Center(
-                                    child: Image.asset(
-                                      'assets/ic_university.png',
-                                      width: 58,
-                                      height: 58,
-                                    ),
-                                  ),
+                            Container(
+                              width: 84,
+                              height: 84,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFFFFF),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Center(
+                                child: Image.asset(
+                                  'assets/images/ic_university.png',
+                                  width: 58,
+                                  height: 58,
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Text("이준호", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                          const SizedBox(width: 10),
-                                          Container(
-                                            padding: const EdgeInsets.only(top: 3, bottom: 3, left: 8, right: 8),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: const Text("20170677", style: TextStyle(fontSize: 12)),
-                                          )
-                                        ],
-                                      ),
-                                      const SizedBox(height: 7),
-                                      const Text("컴퓨터 공학.재학 4학년")
-                                    ],
-
-                                  ),
-                                )
-                              ],
+                              ),
                             ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(name ?? "사용자", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                      const SizedBox(width: 10,),
+                                      Container(
+                                        padding: const EdgeInsets.only(top: 3, bottom: 3, left: 8, right: 8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(studentId ?? "", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 7),
+                                  Text("$major ${grade ?? ""}학년" ?? "", style: TextStyle(fontSize: 18)),
+
+                                ],
+                              ),
+                            )
                           ],
                         ),
-                      )
-                  )
+                      ],
+                    ),
+                  ),
+                ),
               ),
+
               Padding(
                   padding: const EdgeInsets.only(left: 23, right: 23),
                   child: Container(
@@ -181,7 +259,7 @@ class HansikMainPage extends StatelessWidget {
                                 Container(
                                   child: Center(
                                     child: SvgPicture.asset(
-                                      'assets/ic_pay.svg',
+                                      'assets/images/ic_pay.svg',
                                       width: 84,
                                       height: 20,
                                     ),
@@ -201,12 +279,7 @@ class HansikMainPage extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    customButton('assets/ic_buy.svg', '식권구매', context),
-                    customButton('assets/ic_tickets.svg', '식권함', context),
-                    customButton('assets/ic_menu.svg', '메뉴', context),
-                    customButton('assets/ic_homepage.svg', '홈페이지', context),
-                  ],
+                  children: _pageInfos.map((pageInfo) => customButton(pageInfo, context)).toList(), // _pageInfos 리스트 사용
                 ),
               ),
               const SizedBox(height: 30),
@@ -248,7 +321,7 @@ class HansikMainPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 IconButton(
-                                  icon: SvgPicture.asset('assets/bg_btn_left.svg'),
+                                  icon: SvgPicture.asset('assets/images/bg_btn_left.svg'),
                                   onPressed: () {
                                     // 이전 날짜로 변경
                                   },
@@ -276,7 +349,7 @@ class HansikMainPage extends StatelessWidget {
                                 ),
 
                                 IconButton(
-                                  icon: SvgPicture.asset('assets/bg_btn_right.svg'),
+                                  icon: SvgPicture.asset('assets/images/bg_btn_right.svg'),
                                   onPressed: () {
                                     // 다음 날짜로 변경
                                   },

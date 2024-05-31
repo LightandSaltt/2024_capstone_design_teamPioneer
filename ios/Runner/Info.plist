@@ -56,5 +56,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+
+	<key>NMFClientId</key>
+      <string>t2jybcid3d</string>
+      <key>io.flutter.embedded_views_preview</key>
+      <true/>
+      <key>NSAllowsArbitraryLoads</key>
+      <true/>
+
+      <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+          <string>[USAGE PERPOSE]</string>
+          <key>NSLocationAlwaysUsageDescription</key>
+          <string>[USAGE PERPOSE]</string>
+          <key>NSLocationWhenInUseUsageDescription</key>
+          <string>[USAGE PERPOSE]</string>
+
 </dict>
 </plist>
