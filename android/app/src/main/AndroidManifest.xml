@@ -34,7 +34,7 @@
 
         <!--네이버 맵-->
         <meta-data
-            android:name="com.naver.maps.map.t2jybcid3d"
+            android:name="com.naver.maps.map.CLIENT_ID"
             android:value="t2jybcid3d" />
 
     </application>
@@ -49,4 +49,5 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
 </manifest>
