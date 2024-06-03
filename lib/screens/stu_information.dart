@@ -28,7 +28,7 @@ class _StuInformationState extends State<StuInformation> {
     '탈메이지교양・융합대학': ['창의융합학부', '자유전공학부'],
     '아트・디자인테크놀로지대학': ['회화과', '미디어영상학과', '패션디자인학과', '융합디자인학과'],
     '린튼글로벌스쿨': ['글로벌IT경영전공', '글로벌비즈니스전공'],
-    '교수 및 교직원': ['교수','교직원']
+    '교수 및 교직원': ['교수', '교직원']
   };
 
   @override
@@ -124,6 +124,7 @@ class _StuInformationState extends State<StuInformation> {
                                 await databaseRef.child('users/${user.uid}').set({
                                   'name': _nameController.text,
                                   'studentId': _studentIdController.text,
+                                  'department': _selectedDepartment,
                                   'major': _selectedMajor,
                                   'grade': _gradeController.text,
                                 });
