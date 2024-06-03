@@ -1,10 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import 'hansik_main_page.dart';
-import 'stu_information.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,8 +13,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final DatabaseReference _database = FirebaseDatabase.instance.reference();
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   User? _user;
 
@@ -29,54 +25,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // 사용자 정보 변경 감지 시 로그인 여부 확인 후 페이지 이동
         if (_user != null) {
-          _checkUserInDatabase();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HansikMainPage()),
+          );
         }
       });
     });
   }
 
-  Future<void> _checkUserInDatabase() async {
-    final userRef = _database.child('users').child(_user!.uid);
-    final snapshot = await userRef.get();
-    if (snapshot.value == null) {
-      // 사용자 정보가 데이터베이스에 없음
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => StuInformation()),
-      );
-    } else {
-      // 사용자 정보가 데이터베이스에 있음
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HansikMainPage()),
-      );
-    }
-  }
-
-  Future<void> _handleGoogleSignIn() async {
+  void _handleGoogleSignIn() {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // 사용자가 로그인 취소
-        return;
-      }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential = await _auth.signInWithCredential(credential);
-      _user = userCredential.user;
-      if (_user != null) {
-        _checkUserInDatabase();
-      }
+      GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
+      _auth.signInWithProvider(_googleAuthProvider);
     } catch (error) {
       print(error);
     }
   }
 
-  Widget _googleSignInButton() {
+  Widget _googleSignInButton() { // 위젯 함수로 변경
     return Center(
       child: SizedBox(
         height: 50,
