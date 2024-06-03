@@ -41,6 +41,16 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin google_sign_in_android, io.flutter.plugins.googlesignin.GoogleSignInPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new kr.iamport.iamport_flutter.IamportFlutterPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin iamport_flutter, kr.iamport.iamport_flutter.IamportFlutterPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new kr.iamport.iamport_webview_flutter.WebViewFlutterPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin iamport_webview_flutter, kr.iamport.iamport_webview_flutter.WebViewFlutterPlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new io.flutter.plugins.imagepicker.ImagePickerPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin image_picker_android, io.flutter.plugins.imagepicker.ImagePickerPlugin", e);
@@ -49,6 +59,11 @@ public final class GeneratedPluginRegistrant {
       flutterEngine.getPlugins().add(new map.naver.plugin.net.lbstech.naver_map_plugin.NaverMapPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin naver_map_plugin, map.naver.plugin.net.lbstech.naver_map_plugin.NaverMapPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new name.avioli.unilinks.UniLinksPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin uni_links, name.avioli.unilinks.UniLinksPlugin", e);
     }
     try {
       flutterEngine.getPlugins().add(new io.flutter.plugins.urllauncher.UrlLauncherPlugin());
