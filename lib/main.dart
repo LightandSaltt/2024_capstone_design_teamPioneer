@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'hansik_app',
       debugShowCheckedModeBanner: false,
-      home: HansikMainPage(), // LoginScreen을 여기서 호출
+      home: LoginScreen(), // LoginScreen을 여기서 호출
 
       routes: {
         '/profile_change': (context) => ProfileChangeScreen(),
