@@ -8,6 +8,9 @@ import 'package:hansik_app/screens/mypage.dart';
 import 'package:hansik_app/screens/notification.dart';
 import 'package:hansik_app/screens/payment_details.dart';
 import 'package:hansik_app/screens/profile_change.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:hansik_app/screens/stu_information.dart';
 
 import 'firebase_options.dart';
 
@@ -27,8 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'hansik_app',
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(), // LoginScreen을 여기서 호출
-
+      home: AuthCheck(),
       routes: {
         '/profile_change': (context) => ProfileChangeScreen(),
         '/my_hansik_storage': (context) => MyHansikStorageScreen(),
@@ -37,5 +39,38 @@ class MyApp extends StatelessWidget {
         '/notification': (context) => NotificationScreen(),
       },
     );
+  }
+}
+
+class AuthCheck extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Widget>(
+      future: _checkAuthStatus(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          return snapshot.data ?? LoginScreen();
+        }
+      },
+    );
+  }
+
+  Future<Widget> _checkAuthStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return LoginScreen();
+    } else {
+      final userRef = FirebaseDatabase.instance.reference().child('users').child(user.uid);
+      final snapshot = await userRef.get();
+      if (snapshot.value == null) {
+        return StuInformation();
+      } else {
+        return HansikMainPage();
+      }
+    }
   }
 }
