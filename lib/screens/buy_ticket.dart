@@ -15,7 +15,7 @@ class BuyTicket extends StatefulWidget {
 class _BuyTicketState extends State<BuyTicket> {
   final double imageWidth = 300.0;  // 이미지의 너비 설정
   final double imageHeight = 200.0; // 이미지의 높이 설정
-  int _ticketCount = 1; // 초기 티켓 수량
+  int _ticketCount = 1; // 초기 티켓 구매 수량
   String? name;
   String? studentId;
   String? major;
@@ -326,19 +326,6 @@ class Payment extends StatelessWidget {
     required this.major,
     required this.grade,
   });
-
-  bool getIsSuccessed(Map<String, String> result) {
-    if (result['imp_success'] == 'true') {
-      return true;
-    }
-    if (result['success'] == 'true') {
-      return true;
-    }
-    if (result['status'] == 'paid') {
-      return true;
-    }
-    return false;
-  }
 
   void handlePaymentResult(BuildContext context, Map<String, String> result) {
     // 결제 결과 콘솔 출력
