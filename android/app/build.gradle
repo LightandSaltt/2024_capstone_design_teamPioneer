@@ -73,6 +73,7 @@ apply plugin: 'com.google.gms.google-services'
 
 dependencies{
     implementation("com.google.firebase:firebase-database-ktx")
-
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation("com.naver.maps:map-sdk:3.16.2")
 }
+
