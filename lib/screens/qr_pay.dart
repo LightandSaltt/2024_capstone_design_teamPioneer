@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'buy_ticket.dart';
 
-class qr_Pay extends StatelessWidget {
+class QrPay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
