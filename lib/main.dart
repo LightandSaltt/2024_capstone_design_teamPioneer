@@ -64,13 +64,8 @@ class AuthCheck extends StatelessWidget {
     if (user == null) {
       return LoginScreen();
     } else {
-      final userRef = FirebaseDatabase.instance.reference().child('users').child(user.uid);
-      final snapshot = await userRef.get();
-      if (snapshot.value == null) {
-        return StuInformation();
-      } else {
-        return HansikMainPage();
-      }
+      // 로그인되어 있다면 메인 페이지로 이동
+      return HansikMainPage();
     }
   }
 }
