@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-/* 아임포트 결제 모듈 */
 import 'package:iamport_flutter/iamport_payment.dart';
-/* 아임포트 결제 데이터 모델 */
 import 'package:iamport_flutter/model/payment_data.dart';
+import 'stu_information.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class BuyTicket extends StatefulWidget {
   const BuyTicket({super.key});
@@ -14,7 +15,44 @@ class BuyTicket extends StatefulWidget {
 class _BuyTicketState extends State<BuyTicket> {
   final double imageWidth = 300.0;  // 이미지의 너비 설정
   final double imageHeight = 200.0; // 이미지의 높이 설정
-  int _ticketCount = 1; // 초기 티켓 수량
+  int _ticketCount = 1; // 초기 티켓 구매 수량
+  String? name;
+  String? studentId;
+  String? major;
+  String? grade;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final databaseRef = FirebaseDatabase.instance.ref();
+        final snapshot = await databaseRef.child('users/${user.uid}').get();
+
+        if (snapshot.exists) {
+          final userData = snapshot.value as Map<dynamic, dynamic>;
+          setState(() {
+            name = userData['name'] as String?;
+            studentId = userData['studentId'] as String?;
+            major = userData['major'] as String?;
+            grade = userData['grade'] as String?;
+          });
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => StuInformation()),
+          );
+        }
+      }
+    } catch (e) {
+      print("Error loading user data: $e");
+    }
+  }
 
   void _showConfirmation() {
     showDialog(
@@ -45,7 +83,13 @@ class _BuyTicketState extends State<BuyTicket> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Payment(ticketCount: _ticketCount),
+        builder: (context) => Payment(
+          ticketCount: _ticketCount,
+          name: name,
+          studentId: studentId,
+          major: major,
+          grade: grade,
+        ),
       ),
     );
   }
@@ -225,11 +269,6 @@ class _BuyTicketState extends State<BuyTicket> {
   }
 }
 
-// 결제 모듈 구간
-void main() {
-  runApp(const MyApp());
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -274,21 +313,30 @@ class HomePage extends StatelessWidget {
 
 class Payment extends StatelessWidget {
   final int ticketCount;
+  final String? name;
+  final String? studentId;
+  final String? major;
+  final String? grade;
 
-  const Payment({super.key, required this.ticketCount});
+  const Payment({
+    super.key,
+    required this.ticketCount,
+    required this.name,
+    required this.studentId,
+    required this.major,
+    required this.grade,
+  });
 
   void handlePaymentResult(BuildContext context, Map<String, String> result) {
-    // 결제 결과를 콘솔에 출력합니다.
+    // 결제 결과 콘솔 출력
     print('결제 결과: $result');
 
-    // 결과에 따라 메시지를 다르게 표시합니다.
+    // 결과 표시
     String message;
-    if (result['imp_success'] == 'true') {
-      message = '식권 ${ticketCount}장이 구매 완료되었습니다.';
-    } else if (result['error_code'] == 'USER_CANCEL') {
+    if (result['error_code'] == 'F400') {
       message = '식권 구매가 취소되었습니다.';
     } else {
-      message = '식권 구매에 실패하였습니다.';
+      message = '식권 ${ticketCount}장이 구매 완료되었습니다.'; // 계좌의 잔액 부족일 경우 에러 처리 아직 안 됌.
     }
 
     showDialog(
@@ -331,24 +379,23 @@ class Payment extends StatelessWidget {
             ),
           ),
         ),
-        /* [필수입력] 가맹점 식별코드 */
-        userCode: 'imp05572687',  // 여기에 실제 가맹점 식별코드를 입력하세요
-        /* [필수입력] 결제 데이터 */
+        userCode: 'imp05572687',  // 가맹점 식별코드
+        /* 결제 데이터 */
         data: PaymentData(
             pg: 'tosspayments',                                          // PG사
             payMethod: 'card',                                           // 결제수단
             name: '한남대학교 학생 식당 식권 구매' ,                                  // 주문명
             merchantUid: 'mid_${DateTime.now().millisecondsSinceEpoch}', // 주문번호
             amount: 4500 * ticketCount,                                  // 결제금액
-            buyerName: '홍길동',                                           // 구매자 이름
+            buyerName: name,                                           // 구매자 이름
             buyerTel: '01012345678',                                     // 구매자 연락처
-            buyerEmail: 'example@naver.com',                             // 구매자 이메일
-            buyerAddr: '서울시 강남구 논현동 661-16',                         // 구매자 주소
+            buyerEmail: '${studentId}@gm.hannam.ac.kr',                 // 구매자 이메일 -> 학번
+            buyerAddr: '한남대학교 학생 식당',                         // 구매자 주소
             buyerPostcode: '06018',                                      // 구매자 우편번호
             appScheme: 'supertoss://',                                   // 앱 URL scheme
             cardQuota : [2,3]                                            // 결제창 UI 내 할부개월수 제한
         ),
-        /* [필수입력] 콜백 함수 */
+        /* 콜백 함수 */
         callback: (Map<String, String> result) {
           handlePaymentResult(context, result);
         },

@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hansik_app/screens/hansik_main_page.dart';
 import 'package:hansik_app/screens/inquiry.dart';
+import 'package:hansik_app/screens/login.dart';
 import 'package:hansik_app/screens/my_hansik_storage.dart';
 import 'package:hansik_app/screens/mypage.dart';
 import 'package:hansik_app/screens/notification.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'hansik_app',
       debugShowCheckedModeBanner: false,
-      home: HansikMainPage(), // LoginScreen을 여기서 호출
+      home: LoginScreen(), // LoginScreen을 여기서 호출
 
       routes: {
         '/profile_change': (context) => ProfileChangeScreen(),
