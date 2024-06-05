@@ -15,26 +15,25 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-
-  List<MenuItem> _menuList = [
+  final List<MenuItem> _menuList = [
     MenuItem(
-      date: "3월20일(월)",
+      date: "6월05일(월)",
       menuItems: ['된장국','현미밥','된장찌개','제육볶음','볶음김치','플레인 요구르트'],
     ),
     MenuItem(
-      date: "3월21일(화)",
+      date: "6월06일(화)",
       menuItems: ['된장국','현미밥','된장찌개','제육볶음','볶음김치','플레인 요구르트'],
     ),
     MenuItem(
-      date: "3월22일(수)",
+      date: "6월07일(수)",
       menuItems: ['된장국','현미밥','된장찌개','제육볶음','볶음김치','플레인 요구르트'],
     ),
     MenuItem(
-      date: "3월23일(목)",
+      date: "6월08일(목)",
       menuItems: ['된장국','현미밥','된장찌개','제육볶음','볶음김치','플레인 요구르트'],
     ),
     MenuItem(
-      date: "3월24일(금)",
+      date: "6월09일(금)",
       menuItems: ['된장국','현미밥','된장찌개','제육볶음','볶음김치','플레인 요구르트'],
     ),
   ];
@@ -45,12 +44,6 @@ class _MenuScreenState extends State<MenuScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text('메뉴'),
-        leading: IconButton( // 뒤로가기 버튼 추가
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // 이전 페이지로 이동
-          },
-        ),
       ),
       body: Container(
         padding: const EdgeInsets.only(top: 15, left: 20, bottom: 30, right: 20),
