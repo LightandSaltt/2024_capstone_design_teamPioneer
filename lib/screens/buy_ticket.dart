@@ -389,7 +389,7 @@ class Payment extends StatelessWidget {
             amount: 4500 * ticketCount,                                  // 결제금액
             buyerName: name,                                           // 구매자 이름
             buyerTel: '01012345678',                                     // 구매자 연락처
-            buyerEmail: studentId,                             // 구매자 이메일 -> 학번
+            buyerEmail: '${studentId}@gm.hannam.ac.kr',                 // 구매자 이메일 -> 학번
             buyerAddr: '한남대학교 학생 식당',                         // 구매자 주소
             buyerPostcode: '06018',                                      // 구매자 우편번호
             appScheme: 'supertoss://',                                   // 앱 URL scheme
