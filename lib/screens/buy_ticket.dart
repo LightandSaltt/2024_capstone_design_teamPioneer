@@ -4,6 +4,8 @@ import 'package:iamport_flutter/model/payment_data.dart';
 import 'stu_information.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:uuid/uuid.dart'; // QR 코드 생성 시 고유한 식별자를 생성하기 위해 추가
+import 'hansik_main_page.dart'; // HansikMainPage를 가져옵니다.
 
 class BuyTicket extends StatefulWidget {
   const BuyTicket({super.key});
@@ -269,48 +271,6 @@ class _BuyTicketState extends State<BuyTicket> {
   }
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter 아임포트 결제 모듈 호출',
-      routes: {
-        '/': (context) => const HomePage(),
-        '/result': (context) => const ResultPage(),
-      },
-      initialRoute: '/',
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('아임포트 결제 모듈 호출 예제'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const BuyTicket(),
-              ),
-            );
-          },
-          child: const Text('식권 구매하기'),
-        ),
-      ),
-    );
-  }
-}
-
 class Payment extends StatelessWidget {
   final int ticketCount;
   final String? name;
@@ -327,16 +287,49 @@ class Payment extends StatelessWidget {
     required this.grade,
   });
 
-  void handlePaymentResult(BuildContext context, Map<String, String> result) {
+  void handlePaymentResult(BuildContext context, Map<String, String> result) async {
     // 결제 결과 콘솔 출력
     print('결제 결과: $result');
 
     // 결과 표시
     String message;
+    bool isSuccess = false; // 결제 성공 여부 플래그
     if (result['error_code'] == 'F400') {
       message = '식권 구매가 취소되었습니다.';
     } else {
-      message = '식권 ${ticketCount}장이 구매 완료되었습니다.'; // 계좌의 잔액 부족일 경우 에러 처리 아직 안 됌.
+      message = '식권 ${ticketCount}장이 구매 완료되었습니다.';
+      isSuccess = true; // 결제 성공 처리
+
+      // Firebase 데이터베이스 업데이트
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final databaseRef = FirebaseDatabase.instance.ref();
+        final ticketRef = databaseRef.child('users/${user.uid}/tickets');
+        DatabaseReference userRef = databaseRef.child('users/${user.uid}');
+
+        for (int i = 0; i < ticketCount; i++) {
+          String qrCode = Uuid().v4();  // 고유한 QR 코드 생성
+          await ticketRef.push().set({
+            'qrCode': qrCode,
+            'used': false,
+            'timestamp': DateTime.now().toIso8601String(),
+          });
+        }
+
+        // 티켓 개수 업데이트
+        DataSnapshot userSnapshot = await userRef.child('ticketCount').get();
+        if (userSnapshot.exists) {
+          int currentCount = int.tryParse(userSnapshot.value.toString()) ?? 0;
+          int newCount = currentCount + ticketCount;
+          await userRef.child('ticketCount').set(newCount);
+        } else {
+          await userRef.child('ticketCount').set(ticketCount);
+        }
+
+        print('티켓 개수 업데이트 완료');
+      } else {
+        print('사용자가 로그인되어 있지 않습니다.');
+      }
     }
 
     showDialog(
@@ -349,8 +342,15 @@ class Payment extends StatelessWidget {
             TextButton(
               child: Text('확인'),
               onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();  // 결제 페이지 닫기
+                Navigator.of(context).pop();  // 결제 결과 대화 상자 닫기
+                if (isSuccess) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => HansikMainPage()),
+                        (Route<dynamic> route) => false,
+                  );
+                } else {
+                  Navigator.of(context).pop();  // 결제 페이지 닫기
+                }
               },
             ),
           ],
@@ -399,24 +399,6 @@ class Payment extends StatelessWidget {
         callback: (Map<String, String> result) {
           handlePaymentResult(context, result);
         },
-      ),
-    );
-  }
-}
-
-class ResultPage extends StatelessWidget {
-  const ResultPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final Map<String, String>? result = ModalRoute.of(context)!.settings.arguments as Map<String, String>?;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('결제 결과'),
-      ),
-      body: Center(
-        child: Text('결제 결과: $result'),
       ),
     );
   }

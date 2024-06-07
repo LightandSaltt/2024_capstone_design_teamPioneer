@@ -127,6 +127,7 @@ class _StuInformationState extends State<StuInformation> {
                                   'department': _selectedDepartment,
                                   'major': _selectedMajor,
                                   'grade': _gradeController.text,
+                                  'ticketCount': 0,
                                 });
 
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HansikMainPage()));
