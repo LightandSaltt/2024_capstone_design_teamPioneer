@@ -9,6 +9,7 @@ import 'buy_ticket.dart';
 import 'menu_screen.dart';
 import 'hnu_map.dart';
 import 'login.dart';
+import 'mypage.dart';
 import 'stu_information.dart';
 
 class HansikMainPage extends StatefulWidget {
@@ -126,23 +127,24 @@ class _HansikMainPageState extends State<HansikMainPage> {
           automaticallyImplyLeading: false,  // 뒤로가기 버튼 숨기기
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 16.0),
+              padding: const EdgeInsets.only(right: 4),
               child: IconButton(
                 icon: SvgPicture.asset('assets/images/ic_alarm.svg'),
                 onPressed: () {
                   // 알림 로직 처리
+
                 },
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.logout, color: Colors.black),
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
+              icon: const Icon(Icons.account_circle_outlined, color: Colors.black, size: 30),
+              onPressed: () {
+                Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  MaterialPageRoute(builder: (context) => MyPage()),
                 );
               },
+              padding: EdgeInsets.only(right: 20),
             ),
           ],
         ),
