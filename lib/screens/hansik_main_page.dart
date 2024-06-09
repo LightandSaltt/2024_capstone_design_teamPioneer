@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hansik_app/screens/password_check.dart';
 import 'package:hansik_app/screens/qr_pay.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'alarm.dart';
 import 'buy_ticket.dart';
 import 'menu_screen.dart';
 import 'hnu_map.dart';
@@ -42,24 +44,24 @@ class _HansikMainPageState extends State<HansikMainPage> {
 
   List<MenuItem> menuList = [
     MenuItem(
-      date: "2024-06-05",
-      menuItems: ['된장국', '현미밥', '된장찌개', '제육볶음', '볶음김치', '플레인 요구르트'],
+      date: "2024-06-10",
+      menuItems: ['백미밥', '순두부찌개', '생선까스&소스', '도토리묵야채무침', '건파래볶음', '배추김치'],
     ),
     MenuItem(
-      date: "2024-03-21",
-      menuItems: ['된장국', '현미밥', '된장찌개', '제육볶음', '볶음김치', '플레인 요구르트'],
+      date: "2024-06-11",
+      menuItems: ['백미밥', '아욱국', '돈육떡고추장볶음', '양배추찜&쌈장', '부추적채겉절이', '배추김치'],
     ),
     MenuItem(
-      date: "2024-03-22",
-      menuItems: ['된장국', '현미밥', '된장찌개', '제육볶음', '볶음김치', '플레인 요구르트'],
+      date: "2024-06-12",
+      menuItems: ['단호박카레라이스', '미역국', '어린잎너비아니구이', '브로콜리초회', '요구르트', '배추김치'],
     ),
     MenuItem(
-      date: "2024-03-23",
-      menuItems: ['된장국', '현미밥', '된장찌개', '제육볶음', '볶음김치', '플레인 요구르트'],
+      date: "2024-06-13",
+      menuItems: ['백미밥', '시래기국', '오징어야채볶음', '두부양념구이', '토마토커리겉절이', '배추김치'],
     ),
     MenuItem(
-      date: "2024-03-24",
-      menuItems: ['된장국', '현미밥', '된장찌개', '제육볶음', '볶음김치', '플레인 요구르트'],
+      date: "2024-06-14",
+      menuItems: ['백미밥', '잔치국수', '메밀전병', '오징어초무', '후식음료', '배추김치'],
     ),
   ];
 
@@ -131,8 +133,10 @@ class _HansikMainPageState extends State<HansikMainPage> {
               child: IconButton(
                 icon: SvgPicture.asset('assets/images/ic_alarm.svg'),
                 onPressed: () {
-                  // 알림 로직 처리
-
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AlarmScreen()),
+                  );
                 },
               ),
             ),
@@ -256,7 +260,7 @@ class _HansikMainPageState extends State<HansikMainPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => QrPay()),
+                              MaterialPageRoute(builder: (context) => PasswordCheck()),
                             );
                           },
                           child: Center(

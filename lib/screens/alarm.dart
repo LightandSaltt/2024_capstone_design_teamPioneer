@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class AlarmScreen extends StatefulWidget {
   @override
@@ -12,13 +13,38 @@ class _AlarmScreenState extends State<AlarmScreen> with SingleTickerProviderStat
   List<PurchaseHistory> _purchaseHistoryList = [];
   List<UsageHistory> _usageHistoryList = [];
   late TabController _tabController;
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _initializeNotifications();
     _loadPurchaseHistory();
     _loadUsageHistory();
+  }
+
+  void _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initializationSettings =
+    InitializationSettings(android: initializationSettingsAndroid);
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void _showNotification(String title, String body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+    AndroidNotificationDetails(
+        'your_channel_id', 'your_channel_name',
+        channelDescription: 'your_channel_description',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false);
+    const NotificationDetails platformChannelSpecifics =
+    NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, title, body, platformChannelSpecifics);
   }
 
   void _loadPurchaseHistory() async {
@@ -45,6 +71,9 @@ class _AlarmScreenState extends State<AlarmScreen> with SingleTickerProviderStat
           setState(() {
             _purchaseHistoryList = historyList;
           });
+
+          // Show notification
+          _showNotification('구매 내역 업데이트', '새로운 구매 내역이 있습니다.');
         }
       }
     } catch (e) {
@@ -74,7 +103,14 @@ class _AlarmScreenState extends State<AlarmScreen> with SingleTickerProviderStat
           setState(() {
             _usageHistoryList = historyList;
           });
+
+          // Show notification
+          _showNotification('사용 내역 업데이트', '새로운 사용 내역이 있습니다.');
+        } else {
+          print("No usage history data found.");
         }
+      } else {
+        print("User is not logged in.");
       }
     } catch (e) {
       print("Error loading usage history: $e");
