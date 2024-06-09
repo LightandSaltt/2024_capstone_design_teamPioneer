@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 
 class QrPay extends StatefulWidget {
   @override
@@ -13,11 +14,14 @@ class _QrPayState extends State<QrPay> {
   String? qrCode;  // 가장 오래된 티켓의 QR 코드
   String? oldestTicketKey;
   late DatabaseReference ticketsRef;
+  final FocusNode _focusNode = FocusNode(); // FocusNode 추가
+  String _scannedDataBuffer = ''; // 스캔된 데이터를 저장할 버퍼
 
   @override
   void initState() {
     super.initState();
     _initializeDatabase();
+    _focusNode.requestFocus(); // FocusNode에 포커스 설정
   }
 
   void _initializeDatabase() async {
@@ -84,9 +88,14 @@ class _QrPayState extends State<QrPay> {
     }
   }
 
+  void _processScannedQRCode() {
+    _useTicket();
+  }
+
   @override
   void dispose() {
     ticketsRef.onValue.drain();  // 리스너 종료
+    _focusNode.dispose(); // FocusNode 해제
     super.dispose();
   }
 
@@ -115,28 +124,38 @@ class _QrPayState extends State<QrPay> {
           ),
         ],
       ),
-      body: Container(
-        color: Colors.grey.withOpacity(0.1),
-        child: Center(
-          child: ticketCount > 0 && qrCode != null
-              ? Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              QrImageView(
-                data: qrCode!,
-                version: QrVersions.auto,
-                size: 200.0,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: ticketCount > 0 ? _useTicket : null, // 버튼 활성화 조건
-                child: Text('식권 사용'),
-              ),
-            ],
-          )
-              : Text(
-            '사용 가능한 식권이 없습니다.',
-            style: TextStyle(fontSize: 16),
+      body: RawKeyboardListener(
+        focusNode: _focusNode, // FocusNode 사용
+        onKey: (RawKeyEvent event) {
+          if (event is RawKeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.enter) {
+              // 엔터 키 입력 시 처리
+              _processScannedQRCode();
+              _scannedDataBuffer = ''; // 버퍼 초기화
+            } else {
+              _scannedDataBuffer += event.character ?? '';
+            }
+          }
+        },
+        child: Container(
+          color: Colors.grey.withOpacity(0.1),
+          child: Center(
+            child: ticketCount > 0 && qrCode != null
+                ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                QrImageView(
+                  data: qrCode!,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                ),
+                SizedBox(height: 20),
+              ],
+            )
+                : Text(
+              '사용 가능한 식권이 없습니다.',
+              style: TextStyle(fontSize: 16),
+            ),
           ),
         ),
       ),
