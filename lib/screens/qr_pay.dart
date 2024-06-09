@@ -4,6 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async'; // Timer를 사용하기 위해 추가
 import 'package:hansik_app/screens/password_check.dart'; // 비밀번호 확인 화면으로 돌아가기 위한 경로
+import 'package:flutter/services.dart';
 
 class QrPay extends StatefulWidget {
   @override
@@ -17,6 +18,8 @@ class _QrPayState extends State<QrPay> {
   late DatabaseReference ticketsRef;
   Timer? _timer;
   int _remainingTime = 30;  // 카운트다운 시간
+  final FocusNode _focusNode = FocusNode(); // FocusNode 추가
+  String _scannedDataBuffer = ''; // 스캔된 데이터를 저장할 버퍼
 
   @override
   void initState() {
@@ -24,6 +27,7 @@ class _QrPayState extends State<QrPay> {
     _initializeDatabase();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTimer(); // 위젯이 빌드된 후 타이머 시작
+      _focusNode.requestFocus(); // FocusNode에 포커스 설정
     });
   }
 
@@ -115,10 +119,15 @@ class _QrPayState extends State<QrPay> {
     });
   }
 
+  void _processScannedQRCode() {
+    _useTicket();
+  }
+
   @override
   void dispose() {
     _timer?.cancel(); // 페이지 종료 시 타이머 취소
     ticketsRef.onValue.drain();  // 리스너 종료
+    _focusNode.dispose(); // FocusNode 해제
     super.dispose();
   }
 
@@ -147,30 +156,40 @@ class _QrPayState extends State<QrPay> {
           ),
         ],
       ),
-      body: Container(
-        color: Colors.grey.withOpacity(0.1),
-        child: Center(
-          child: ticketCount > 0 && qrCode != null
-              ? Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              QrImageView(
-                data: qrCode!,
-                version: QrVersions.auto,
-                size: 200.0,
-              ),
-              SizedBox(height: 20),
-              Text('남은 시간: $_remainingTime초'),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: ticketCount > 0 ? _useTicket : null,
-                child: Text('식권 사용'),
-              ),
-            ],
-          )
-              : Text(
-            '사용 가능한 식권이 없습니다.',
-            style: TextStyle(fontSize: 16),
+      body: RawKeyboardListener(
+        focusNode: _focusNode, // FocusNode 사용
+        onKey: (RawKeyEvent event) {
+          if (event is RawKeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.enter) {
+              // 엔터 키 입력 시 처리
+              _processScannedQRCode();
+              _scannedDataBuffer = ''; // 버퍼 초기화
+            } else {
+              _scannedDataBuffer += event.character ?? '';
+            }
+          }
+        },
+        child: Container(
+          color: Colors.grey.withOpacity(0.1),
+          child: Center(
+            child: ticketCount > 0 && qrCode != null
+                ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                QrImageView(
+                  data: qrCode!,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                ),
+                SizedBox(height: 20),
+                Text('남은 시간: $_remainingTime초'),
+                SizedBox(height: 20),
+              ],
+            )
+                : Text(
+              '사용 가능한 식권이 없습니다.',
+              style: TextStyle(fontSize: 16),
+            ),
           ),
         ),
       ),
