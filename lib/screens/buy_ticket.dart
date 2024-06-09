@@ -194,7 +194,7 @@ class _BuyTicketState extends State<BuyTicket> {
           SizedBox(height: 20), // 가격과 아래 박스 사이의 공간 추가
           Expanded(
             child: Container(
-              padding: EdgeInsets.all(20.0),
+              padding: EdgeInsets.all(10.0),  // 원래 20.0에서 10.0으로 줄임
               color: Colors.grey[300],
               width: double.infinity,
               child: Text(
@@ -295,9 +295,10 @@ class Payment extends StatelessWidget {
     String message;
     bool isSuccess = false; // 결제 성공 여부 플래그
     if (result['error_code'] == 'F400') {
-      message = '식권 구매가 취소되었습니다.';
+      message = '결제에 실패하였습니다.\n사유: ${result['error_msg']}';
+      print('결제 취소됨: ${result['error_msg']}');
     } else {
-      message = '식권 ${ticketCount}장이 구매 완료되었습니다.';
+      message = '결제가 완료되었습니다.\n\n총 금액: ${4500 * ticketCount}원\n티켓 수: ${ticketCount}장';
       isSuccess = true; // 결제 성공 처리
 
       // Firebase 데이터베이스 업데이트
@@ -306,6 +307,7 @@ class Payment extends StatelessWidget {
         final databaseRef = FirebaseDatabase.instance.ref();
         final ticketRef = databaseRef.child('users/${user.uid}/tickets');
         DatabaseReference userRef = databaseRef.child('users/${user.uid}');
+        DatabaseReference historyRef = userRef.child('purchaseHistory');
 
         for (int i = 0; i < ticketCount; i++) {
           String qrCode = Uuid().v4();  // 고유한 QR 코드 생성
@@ -314,6 +316,7 @@ class Payment extends StatelessWidget {
             'used': false,
             'timestamp': DateTime.now().toIso8601String(),
           });
+          print('티켓 생성: $qrCode');
         }
 
         // 티켓 개수 업데이트
@@ -322,11 +325,19 @@ class Payment extends StatelessWidget {
           int currentCount = int.tryParse(userSnapshot.value.toString()) ?? 0;
           int newCount = currentCount + ticketCount;
           await userRef.child('ticketCount').set(newCount);
+          print('티켓 개수 업데이트: $newCount');
         } else {
           await userRef.child('ticketCount').set(ticketCount);
+          print('초기 티켓 개수 설정: $ticketCount');
         }
 
-        print('티켓 개수 업데이트 완료');
+        // 결제 내역 저장
+        await historyRef.push().set({
+          'ticketCount': ticketCount,
+          'amount': 4500 * ticketCount,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+        print('결제 내역 저장 완료');
       } else {
         print('사용자가 로그인되어 있지 않습니다.');
       }
@@ -336,11 +347,18 @@ class Payment extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('결제 결과'),
-          content: Text(message),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(isSuccess ? '결제가 완료되었습니다.' : '결제가 실패하였습니다.', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              SizedBox(height: 20),
+              Text(message, style: TextStyle(fontSize: 18)),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
-              child: Text('확인'),
+              child: Text('확인', style: TextStyle(fontSize: 18)),
               onPressed: () {
                 Navigator.of(context).pop();  // 결제 결과 대화 상자 닫기
                 if (isSuccess) {

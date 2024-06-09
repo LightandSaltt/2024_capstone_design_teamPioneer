@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'login.dart';
+import 'alarm.dart';
+import 'inquiry.dart';
+import 'notification.dart';
 
 class MyPage extends StatelessWidget {
   @override
@@ -10,8 +13,7 @@ class MyPage extends StatelessWidget {
       appBar: MyAppBar(),
       body: Column(
         children: [
-          SizedBox(
-            height: 580,  // ListView의 높이를 제한
+          Expanded(
             child: MyPageBody(),
           ),
           MyPageLogoutButton(),
@@ -27,16 +29,20 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      title: Row(
-        children: [
-          Text(
-              'My page',
-              style: TextStyle(
-                fontSize: 34,
-                color: Color(0xFF32810D),
-                fontWeight: FontWeight.bold,
-              )),
-        ],
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: Colors.black), // 뒤로 가기 아이콘
+        onPressed: () {
+          // 현재 페이지(MyPage)를 pop하여 HansikMainPage로 돌아가기
+          Navigator.pop(context);
+        },
+      ),
+      title: Text(
+          'My page',
+          style: TextStyle(
+            fontSize: 34,
+            color: Color(0xFF32810D),
+            fontWeight: FontWeight.bold,
+          )
       ),
     );
   }
@@ -49,46 +55,46 @@ class MyPageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: EdgeInsets.only(top: 20.0),  // 상단에 20 픽셀의 패딩을 추가
+      padding: EdgeInsets.all(20.0),
       children: [
-        Container(
-          padding: EdgeInsets.only(left: 20.0, top: 10, right: 10, bottom: 10),  // '계정' 텍스트의 패딩을 조정
-          color: Color(0xFFF2F4F8),
-          child: Text('계정', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        ),
-        MyPageTile(title: '프로필 변경', navigateTo: '/profile_change'),
-        Divider(),
-        MyPageTile(title: '나의 식권함', navigateTo: '/my_hansik_storage'),
-        Container(
-          padding: EdgeInsets.only(left: 20.0, top: 10, right: 10, bottom: 10),  // '결제 및 문의' 텍스트의 패딩을 조정
-          color: Color(0xFFF2F4F8),
-          child: Text('결제 및 문의', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        ),
-        MyPageTile(title: '결제 내역', navigateTo: '/payment_details'),
-        Divider(),
-        MyPageTile(title: '1:1 문의', navigateTo: '/inquiry'),
-        Divider(),
-        MyPageTile(title: '공지사항', navigateTo: '/notification'),
-        Divider(),
+        Text('결제 및 문의', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        SizedBox(height: 20), // 텍스트와 첫 타일 사이의 간격
+        MyPageTile(title: '결제 내역', destination: AlarmScreen()),
+        MyPageTile(title: '1:1 문의', destination: InquiryScreen()),
+        MyPageTile(title: '공지사항', destination: NotificationScreen()),
       ],
     );
   }
 }
 
-
 class MyPageTile extends StatelessWidget {
   final String title;
-  final String navigateTo;
+  final Widget destination;
 
-  const MyPageTile({Key? key, required this.title, required this.navigateTo}) : super(key: key);
+  const MyPageTile({Key? key, required this.title, required this.destination}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title),
-      onTap: () {
-        Navigator.pushNamed(context, navigateTo);
-      },
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: Offset(0, 3), // changes position of shadow
+          ),
+        ],
+      ),
+      child: ListTile(
+        title: Text(title, style: TextStyle(fontSize: 16)),
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
+        },
+      ),
     );
   }
 }
@@ -97,7 +103,7 @@ class MyPageLogoutButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
+      padding: EdgeInsets.all(30.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xFF32810D),
@@ -105,8 +111,7 @@ class MyPageLogoutButton extends StatelessWidget {
           minimumSize: Size(double.infinity, 50),
         ),
         onPressed: () async {
-          await FirebaseAuth.instance.signOut(); // 로그아웃 처리
-          // 로그인 화면으로 이동
+          await FirebaseAuth.instance.signOut();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => LoginScreen()),

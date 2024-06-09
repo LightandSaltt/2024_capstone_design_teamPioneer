@@ -13,6 +13,8 @@ class _StuInformationState extends State<StuInformation> {
   final _nameController = TextEditingController();
   final _studentIdController = TextEditingController();
   final _gradeController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   String? _selectedDepartment;
   String? _selectedMajor;
@@ -56,6 +58,9 @@ class _StuInformationState extends State<StuInformation> {
                   decoration: const InputDecoration(labelText: '학번'),
                   keyboardType: TextInputType.number,
                   validator: (value) {
+                    if (_selectedDepartment == '교수 및 교직원') {
+                      return null; // 교수 및 교직원일 경우 검증하지 않음
+                    }
                     if (value == null || value.isEmpty) return '학번을 입력하세요.';
                     if (!RegExp(r'^\d{8}$').hasMatch(value)) return '올바른 학번 8자리를 입력해주세요.';
                     return null;
@@ -97,10 +102,33 @@ class _StuInformationState extends State<StuInformation> {
                   decoration: const InputDecoration(labelText: '학년'),
                   keyboardType: TextInputType.number,
                   validator: (value) {
+                    if (_selectedDepartment == '교수 및 교직원') {
+                      return null; // 교수 및 교직원일 경우 검증하지 않음
+                    }
                     if (value == null || value.isEmpty) return '학년을 입력하세요.';
-                    if (int.tryParse(value) == null || int.parse(value) <= 0 || int.parse(value) > 5) {
+                    if (int.tryParse(value) == null || int.parse(value) <= 0 || int.parse(value) >= 5) {
                       return '1~4 사이의 숫자를 입력하세요.';
                     }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(labelText: '비밀번호'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return '비밀번호를 입력하세요.';
+                    if (value.length < 6) return '비밀번호는 최소 6자리여야 합니다.';
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: const InputDecoration(labelText: '비밀번호 확인'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return '비밀번호 확인을 입력하세요.';
+                    if (value != _passwordController.text) return '비밀번호가 일치하지 않습니다.';
                     return null;
                   },
                 ),
@@ -123,10 +151,11 @@ class _StuInformationState extends State<StuInformation> {
                                 final databaseRef = FirebaseDatabase.instance.ref();
                                 await databaseRef.child('users/${user.uid}').set({
                                   'name': _nameController.text,
-                                  'studentId': _studentIdController.text,
+                                  'studentId': _selectedDepartment == '교수 및 교직원' ? ' ' : _studentIdController.text,
                                   'department': _selectedDepartment,
                                   'major': _selectedMajor,
-                                  'grade': _gradeController.text,
+                                  'grade': _selectedDepartment == '교수 및 교직원' ? ' ' : _gradeController.text,
+                                  'password': _passwordController.text, // 비밀번호 저장
                                   'ticketCount': 0,
                                 });
 
