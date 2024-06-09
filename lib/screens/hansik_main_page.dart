@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hansik_app/screens/password_check.dart';
-import 'package:hansik_app/screens/qr_pay.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'alarm.dart';
@@ -40,6 +39,7 @@ class _HansikMainPageState extends State<HansikMainPage> {
   String? studentId;
   String? major;
   String? grade;
+  String? department;
   DateTime currentDate = DateTime.now();
 
   List<MenuItem> menuList = [
@@ -61,7 +61,7 @@ class _HansikMainPageState extends State<HansikMainPage> {
     ),
     MenuItem(
       date: "2024-06-14",
-      menuItems: ['백미밥', '잔치국수', '메밀전병', '오징어초무', '후식음료', '배추김치'],
+      menuItems: ['백미밥', '잔치국수', '메밀전병', '오징어초무침', '후식음료', '배추김치'],
     ),
   ];
 
@@ -85,6 +85,7 @@ class _HansikMainPageState extends State<HansikMainPage> {
             studentId = userData['studentId'];
             major = userData['major'];
             grade = userData['grade'];
+            department = userData['department'];
           });
         } else {
           Navigator.push(
@@ -225,12 +226,15 @@ class _HansikMainPageState extends State<HansikMainPage> {
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(8),
                                         ),
-                                        child: Text(studentId ?? "", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                        child: Text('${studentId ?? ""}님', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                       )
                                     ],
                                   ),
                                   const SizedBox(height: 7),
-                                  Text("$major ${grade ?? ""}학년" ?? "", style: const TextStyle(fontSize: 18)),
+                                  if (department != '교수 및 교직원')
+                                    Text("$major ${grade ?? ""}학년" ?? "", style: const TextStyle(fontSize: 18)),
+                                  if (department == '교수 및 교직원')
+                                    Text(major ?? "", style: const TextStyle(fontSize: 18)),
                                 ],
                               ),
                             )
