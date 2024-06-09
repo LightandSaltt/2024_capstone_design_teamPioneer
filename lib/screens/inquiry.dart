@@ -40,7 +40,8 @@ class _InquiryScreenState extends State<InquiryScreen> with SingleTickerProvider
           _buildMyInquiriesTab(),  // '나의 문의 내역' 탭 추가
         ],
       ),
-      bottomNavigationBar: _tabController.index == 0 ? Padding(
+      bottomNavigationBar: _tabController.index == 0
+          ? Padding(
         padding: EdgeInsets.all(30.0),
         child: ElevatedButton(
           onPressed: () => _sendInquiry(),
@@ -51,34 +52,41 @@ class _InquiryScreenState extends State<InquiryScreen> with SingleTickerProvider
             minimumSize: Size(double.infinity, 50),
           ),
         ),
-      ) : SizedBox.shrink(),
+      )
+          : SizedBox.shrink(),
     );
   }
 
   Widget _buildInquiryForm() {
     return Padding(
       padding: EdgeInsets.all(16.0),
-      child: Column(
-        children: <Widget>[
-          TextField(
-            controller: _titleController,
-            decoration: InputDecoration(
-              labelText: '제목을 입력하세요.',
-              border: OutlineInputBorder(),
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            TextField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                labelText: '제목을 입력하세요.',
+                border: OutlineInputBorder(),
+              ),
+              textInputAction: TextInputAction.next,
+              onSubmitted: (_) => FocusScope.of(context).nextFocus(),
             ),
-          ),
-          SizedBox(height: 20),
-          TextField(
-            controller: _contentController,
-            decoration: InputDecoration(
-              labelText: '내용을 입력하세요.',
-              border: OutlineInputBorder(),
-              alignLabelWithHint: true,
+            SizedBox(height: 20),
+            TextField(
+              controller: _contentController,
+              decoration: InputDecoration(
+                labelText: '내용을 입력하세요.',
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+              maxLines: 12,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => FocusScope.of(context).unfocus(),
             ),
-            maxLines: 12,
-          ),
-          SizedBox(height: 20),
-        ],
+            SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
