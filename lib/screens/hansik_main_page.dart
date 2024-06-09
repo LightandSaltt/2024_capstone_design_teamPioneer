@@ -9,7 +9,7 @@ import 'alarm.dart';
 import 'buy_ticket.dart';
 import 'menu_screen.dart';
 import 'hnu_map.dart';
-import 'login.dart';
+import 'login_screen.dart';
 import 'mypage.dart';
 import 'stu_information.dart';
 

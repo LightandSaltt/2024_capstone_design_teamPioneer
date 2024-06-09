@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'login.dart';
+import 'login_screen.dart';
 import 'alarm.dart';
 import 'inquiry.dart';
 import 'notification.dart';
