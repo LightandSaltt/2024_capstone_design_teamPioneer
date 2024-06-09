@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async'; // Timer를 사용하기 위해 추가
+import 'package:hansik_app/screens/password_check.dart'; // 비밀번호 확인 화면으로 돌아가기 위한 경로
 
 class QrPay extends StatefulWidget {
   @override
@@ -9,15 +11,20 @@ class QrPay extends StatefulWidget {
 }
 
 class _QrPayState extends State<QrPay> {
-  int ticketCount = 0;  // 티켓 수 기본값
-  String? qrCode;  // 가장 오래된 티켓의 QR 코드
+  int ticketCount = 0;
+  String? qrCode;
   String? oldestTicketKey;
   late DatabaseReference ticketsRef;
+  Timer? _timer;
+  int _remainingTime = 30;  // 카운트다운 시간
 
   @override
   void initState() {
     super.initState();
     _initializeDatabase();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTimer(); // 위젯이 빌드된 후 타이머 시작
+    });
   }
 
   void _initializeDatabase() async {
@@ -76,6 +83,11 @@ class _QrPayState extends State<QrPay> {
           int newCount = currentCount - 1;
           await userRef.child('ticketCount').set(newCount);
         }
+
+        // 사용 내역 기록 추가
+        await userRef.child('usedTickets').push().set({
+          'usedAt': DateTime.now().toIso8601String(),
+        });
       }
       _loadTickets();  // 식권 정보를 다시 로드하여 상태를 업데이트
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,8 +96,28 @@ class _QrPayState extends State<QrPay> {
     }
   }
 
+  void _startTimer() {
+    _remainingTime = 30; // 타이머 리셋
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        setState(() {
+          _remainingTime--;
+        });
+      } else {
+        _timer?.cancel();
+        // 시간이 다 되면 비밀번호 인증 화면으로 자동 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => PasswordCheck()),
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _timer?.cancel(); // 페이지 종료 시 타이머 취소
     ticketsRef.onValue.drain();  // 리스너 종료
     super.dispose();
   }
@@ -128,8 +160,10 @@ class _QrPayState extends State<QrPay> {
                 size: 200.0,
               ),
               SizedBox(height: 20),
+              Text('남은 시간: $_remainingTime초'),
+              SizedBox(height: 20),
               ElevatedButton(
-                onPressed: ticketCount > 0 ? _useTicket : null, // 버튼 활성화 조건
+                onPressed: ticketCount > 0 ? _useTicket : null,
                 child: Text('식권 사용'),
               ),
             ],

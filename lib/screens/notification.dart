@@ -8,7 +8,7 @@ class NotificationScreen extends StatelessWidget {
         title: Text('공지사항'),
       ),
       body: Center(
-        child: Text('최신 공지사항을 여기에 표시합니다.'),
+        child: Text(''),
       ),
     );
   }

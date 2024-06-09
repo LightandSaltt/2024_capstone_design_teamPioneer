@@ -52,7 +52,8 @@ dependencies:
   qr_flutter: ^4.1.0  # QR 코드 생성을 위한 라이브러리
   uuid: ^4.4.0
   intl: ^0.19.0
-  qr: ^3.0.1
+  local_auth: ^2.2.0
+  flutter_local_notifications: ^17.1.2
 
 dev_dependencies:
   flutter_test:
