@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'login_screen.dart'; // 로그인 페이지 임포트
 import 'hansik_main_page.dart';
 
 class StuInformation extends StatefulWidget {
@@ -33,148 +34,187 @@ class _StuInformationState extends State<StuInformation> {
     '교수 및 교직원': ['교수', '교직원']
   };
 
+  Future<bool> _onWillPop() async {
+    // 로그아웃 후 로그인 페이지로 이동
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+    return false; // 뒤로 가기 무시
+  }
+
+  void _showAlertDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("알림"),
+          content: Text("교수 및 교직원을 선택하셨습니다. '학번'과 '학년'의 입력은 필요 없습니다."),
+          actions: <Widget>[
+            TextButton(
+              child: Text("확인"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('학생 정보 입력')),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: '이름'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return '이름을 입력하세요.';
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _studentIdController,
-                  decoration: const InputDecoration(labelText: '학번'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (_selectedDepartment == '교수 및 교직원') {
-                      return null; // 교수 및 교직원일 경우 검증하지 않음
-                    }
-                    if (value == null || value.isEmpty) return '학번을 입력하세요.';
-                    if (!RegExp(r'^\d{8}$').hasMatch(value)) return '올바른 학번 8자리를 입력해주세요.';
-                    return null;
-                  },
-                ),
-                DropdownButtonFormField<String>(
-                  value: _selectedDepartment,
-                  decoration: const InputDecoration(labelText: '학부'),
-                  items: _departments.keys.map((String department) {
-                    return DropdownMenuItem<String>(value: department, child: Text(department));
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedDepartment = newValue;
-                      _selectedMajor = null;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return '학부를 선택하세요.';
-                    return null;
-                  },
-                ),
-                DropdownButtonFormField<String>(
-                  value: _selectedMajor,
-                  decoration: const InputDecoration(labelText: '학과'),
-                  items: _selectedDepartment != null
-                      ? _departments[_selectedDepartment]!.map((String major) {
-                    return DropdownMenuItem<String>(value: major, child: Text(major));
-                  }).toList()
-                      : [],
-                  onChanged: (String? newValue) => setState(() => _selectedMajor = newValue),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return '학과를 선택하세요.';
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _gradeController,
-                  decoration: const InputDecoration(labelText: '학년'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (_selectedDepartment == '교수 및 교직원') {
-                      return null; // 교수 및 교직원일 경우 검증하지 않음
-                    }
-                    if (value == null || value.isEmpty) return '학년을 입력하세요.';
-                    if (int.tryParse(value) == null || int.parse(value) <= 0 || int.parse(value) >= 5) {
-                      return '1~4 사이의 숫자를 입력하세요.';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: '비밀번호'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return '비밀번호를 입력하세요.';
-                    if (value.length < 6) return '비밀번호는 최소 6자리여야 합니다.';
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: const InputDecoration(labelText: '비밀번호 확인'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return '비밀번호 확인을 입력하세요.';
-                    if (value != _passwordController.text) return '비밀번호가 일치하지 않습니다.';
-                    return null;
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 15.0, top: 16.0),
-                  child: Center(
-                    child: SizedBox(
-                      width: 200,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF32810D),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-                        ),
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            try {
-                              final user = FirebaseAuth.instance.currentUser;
-                              if (user != null) {
-                                final databaseRef = FirebaseDatabase.instance.ref();
-                                await databaseRef.child('users/${user.uid}').set({
-                                  'name': _nameController.text,
-                                  'studentId': _selectedDepartment == '교수 및 교직원' ? ' ' : _studentIdController.text,
-                                  'department': _selectedDepartment,
-                                  'major': _selectedMajor,
-                                  'grade': _selectedDepartment == '교수 및 교직원' ? ' ' : _gradeController.text,
-                                  'password': _passwordController.text, // 비밀번호 저장
-                                  'ticketCount': 0,
-                                });
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(title: const Text('학생 정보 입력'), automaticallyImplyLeading: true),
+        body: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: '이름'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return '이름을 입력하세요.';
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _studentIdController,
+                    decoration: const InputDecoration(labelText: '학번'),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (_selectedDepartment == '교수 및 교직원') {
+                        return null; // 교수 및 교직원일 경우 검증하지 않음
+                      }
+                      if (value == null || value.isEmpty) return '학번을 입력하세요.';
+                      if (!RegExp(r'^\d{8}$').hasMatch(value)) return '올바른 학번 8자리를 입력해주세요.';
+                      return null;
+                    },
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: _selectedDepartment,
+                    decoration: const InputDecoration(labelText: '학부'),
+                    items: _departments.keys.map((String department) {
+                      return DropdownMenuItem<String>(value: department, child: Text(department));
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedDepartment = newValue;
+                        _selectedMajor = null;
+                        if (_selectedDepartment == '교수 및 교직원') {
+                          _showAlertDialog(); // 교수 및 교직원 선택 시 알림 표시
+                        }
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return '학부를 선택하세요.';
+                      return null;
+                    },
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: _selectedMajor,
+                    decoration: const InputDecoration(labelText: '학과'),
+                    items: _selectedDepartment != null
+                        ? _departments[_selectedDepartment]!.map((String major) {
+                      return DropdownMenuItem<String>(value: major, child: Text(major));
+                    }).toList()
+                        : [],
+                    onChanged: (String? newValue) => setState(() => _selectedMajor = newValue),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return '학과를 선택하세요.';
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _gradeController,
+                    decoration: const InputDecoration(labelText: '학년'),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (_selectedDepartment == '교수 및 교직원') {
+                        return null; // 교수 및 교직원일 경우 검증하지 않음
+                      }
+                      if (value == null || value.isEmpty) return '학년을 입력하세요.';
+                      if (int.tryParse(value) == null || int.parse(value) <= 0 || int.parse(value) >= 5) {
+                        return '1~4 사이의 숫자를 입력하세요.';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(labelText: '비밀번호'),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return '비밀번호를 입력하세요.';
+                      if (value.length < 6) return '비밀번호는 최소 6자리여야 합니다.';
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration: const InputDecoration(labelText: '비밀번호 확인'),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return '비밀번호 확인을 입력하세요.';
+                      if (value != _passwordController.text) return '비밀번호가 일치하지 않습니다.';
+                      return null;
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 15.0, top: 16.0),
+                    child: Center(
+                      child: SizedBox(
+                        width: 200,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF32810D),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                          ),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              try {
+                                final user = FirebaseAuth.instance.currentUser;
+                                if (user != null) {
+                                  final databaseRef = FirebaseDatabase.instance.ref();
+                                  await databaseRef.child('users/${user.uid}').set({
+                                    'name': _nameController.text,
+                                    'studentId': _selectedDepartment == '교수 및 교직원' ? ' ' : _studentIdController.text,
+                                    'department': _selectedDepartment,
+                                    'major': _selectedMajor,
+                                    'grade': _selectedDepartment == '교수 및 교직원' ? ' ' : _gradeController.text,
+                                    'password': _passwordController.text, // 비밀번호 저장
+                                    'ticketCount': 0,
+                                  });
 
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HansikMainPage()));
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => HansikMainPage()),
+                                  );
+                                }
+                              } catch (e) {
+                                print("Error saving user data: $e");
                               }
-                            } catch (e) {
-                              print("Error saving user data: $e");
                             }
-                          }
-                        },
-                        child: const Text(
-                          '저장하기',
-                          style: TextStyle(fontSize: 18), // 폰트 크기 설정 (원하는 크기로 변경)
+                          },
+                          child: const Text(
+                            '저장하기',
+                            style: TextStyle(fontSize: 18), // 폰트 크기 설정 (원하는 크기로 변경)
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
