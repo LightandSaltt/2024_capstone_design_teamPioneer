@@ -69,7 +69,7 @@ class _StuInformationState extends State<StuInformation> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: AppBar(title: const Text('학생 정보 입력'), automaticallyImplyLeading: true),
+        appBar: AppBar(title: const Text('학생 정보 입력'), automaticallyImplyLeading: true, centerTitle: true,),
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,
