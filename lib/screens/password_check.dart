@@ -34,8 +34,8 @@ class _PasswordCheckState extends State<PasswordCheck> {
               child: Transform.translate(
                 offset: Offset(_imagePositionX, _imagePositionY),
                 child: Image.asset(
-                  'assets/images/hansik_ticket.png',
-                  height: 200,
+                  'assets/images/chef.png',
+                  height: 600, width: 350,
                   fit: BoxFit.contain,
                 ),
               ),
