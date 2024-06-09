@@ -97,6 +97,9 @@ class _QrPayState extends State<QrPay> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('식권이 사용되었습니다.')),
       );
+
+      // 타이머를 재설정하고 다시 시작
+      _startTimer();
     }
   }
 
@@ -157,13 +160,12 @@ class _QrPayState extends State<QrPay> {
         ],
       ),
       body: RawKeyboardListener(
-        focusNode: _focusNode, // FocusNode 사용
+        focusNode: _focusNode,
         onKey: (RawKeyEvent event) {
           if (event is RawKeyDownEvent) {
             if (event.logicalKey == LogicalKeyboardKey.enter) {
-              // 엔터 키 입력 시 처리
               _processScannedQRCode();
-              _scannedDataBuffer = ''; // 버퍼 초기화
+              _scannedDataBuffer = '';
             } else {
               _scannedDataBuffer += event.character ?? '';
             }
@@ -184,6 +186,15 @@ class _QrPayState extends State<QrPay> {
                 SizedBox(height: 20),
                 Text('남은 시간: $_remainingTime초'),
                 SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _useTicket,
+                  child: Text('식권 사용'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // 버튼 색상
+                    foregroundColor: Colors.white, // 텍스트 색상
+                  ),
+                ),
+
               ],
             )
                 : Text(
